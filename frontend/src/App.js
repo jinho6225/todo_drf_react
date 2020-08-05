@@ -19,7 +19,7 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
     this.taskUpdate = this.taskUpdate.bind(this)
     this.taskDelete = this.taskDelete.bind(this)
-
+    this.lineThrough = this.lineThrough.bind(this)
   }
 
   getCookie(name) {
@@ -95,7 +95,6 @@ class App extends Component {
   }
 
   taskUpdate(taskObj) {
-    const { activeItem, editing } = this.state
     this.setState({
       activeItem: taskObj,
       editing: true
@@ -117,11 +116,32 @@ class App extends Component {
       this.fetchTasks()
     })
   }
+
+  lineThrough(taskObj) {
+    taskObj.completed = !taskObj.completed
+
+    const csrftoken = this.getCookie('csrftoken');
+    let URL = `http://127.0.0.1:8000/api/task-update/${taskObj.id}/`
+  
+    fetch(URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify({ 
+          title: taskObj.title, 
+          completed: taskObj.completed 
+        }),
+    })
+    .then(res => {
+      this.fetchTasks()
+    })
+  }
   
   render() {
     const { todoList } = this.state
     const { activeItem:{ title } } = this.state
-
     return(
       <div className="container">
         <header className="header">
@@ -148,7 +168,12 @@ class App extends Component {
               {todoList.map(task => {
                 return (
                   <li className="task-list" key={task.id}>
-                    <span className="content ">{task.title}</span>
+                    <span 
+                    className={`content ${task.completed ? "active" : ""}`}
+                    onClick={() => {
+                      this.lineThrough(task)
+                    }}
+                    >{task.title}</span>
                     <span className="icon">
                       <i 
                       className="far fa-edit" 
