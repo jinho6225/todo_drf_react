@@ -1,4 +1,4 @@
-# Todo App Todo App (Django REST framework + React.js)
+# Todo App (Django REST framework + React.js)
 
 
 ## Django RESTful API + React.js
