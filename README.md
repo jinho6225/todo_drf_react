@@ -6,7 +6,7 @@
 > python_Django(RESTful API) + React.js todo app
 
 ## Live Demo
-Try the application live at [https://jinho6225.pythonanywhere.com/](https://jinho6225.pythonanywhere.com/)
+Try the application live at [https://jhmyung.pythonanywhere.com/](https://jhmyung.pythonanywhere.com/)
 
 ## Technologies Used
 - React.js
