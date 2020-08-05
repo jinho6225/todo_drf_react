@@ -43,7 +43,8 @@ class App extends Component {
   }
 
   fetchTasks() {
-    fetch('http://127.0.0.1:8000/api/task-list/')
+    // fetch('http://127.0.0.1:8000/api/task-list/')
+    fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
     .then(res => res.json())
     .then(data => {
       this.setState({
@@ -66,9 +67,12 @@ class App extends Component {
     const { activeItem:{ title, id }, editing } = this.state
     e.preventDefault()
     const csrftoken = this.getCookie('csrftoken');
-    let URL = 'http://127.0.0.1:8000/api/task-create/'
+    // let URL = 'http://127.0.0.1:8000/api/task-create/'
+    let URL = 'https://jhmyung.pythonanywhere.com/api/task-create/'
+
     if (editing) {
-      URL = `http://127.0.0.1:8000/api/task-update/${id}/`
+      // URL = `http://127.0.0.1:8000/api/task-update/${id}/`
+      URL = `https://jhmyung.pythonanywhere.com/api/task-update/${id}/`
       this.setState({
         editing:false
       })
@@ -103,7 +107,8 @@ class App extends Component {
 
   taskDelete(taskObj) {
     const csrftoken = this.getCookie('csrftoken');    
-    let URL = `http://127.0.0.1:8000/api/task-delete/${taskObj.id}/`
+    // let URL = `http://127.0.0.1:8000/api/task-delete/${taskObj.id}/`
+    let URL = `https://jhmyung.pythonanywhere.com/api/task-delete/${taskObj.id}/`
 
     fetch(URL, {
       method: 'DELETE',
@@ -121,7 +126,8 @@ class App extends Component {
     taskObj.completed = !taskObj.completed
 
     const csrftoken = this.getCookie('csrftoken');
-    let URL = `http://127.0.0.1:8000/api/task-update/${taskObj.id}/`
+    // let URL = `http://127.0.0.1:8000/api/task-update/${taskObj.id}/`
+    let URL = `https://jhmyung.pythonanywhere.com/api/task-update/${taskObj.id}/`
   
     fetch(URL, {
       method: 'POST',
