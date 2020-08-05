@@ -2,8 +2,8 @@
   font-family: "Montserrat", sans-serif;
 }
 :root {
-  --lightgray-color: #eceff1;
-  --white-color: #FFF;
+  --lightgray-color: #fbe9e7;
+  --white-color: #ffffee;
   --shadow-color: #777;
 
   --padding: 8px;
@@ -14,8 +14,8 @@
   --large-font: 20px
 }
 body{
-  background: #e9ecef;
-  background: linear-gradient(90deg, #e9ecef 0%, #e5ffff 50%, #e9ecef 100%);
+  background: #ffccbc;
+  background: linear-gradient(90deg, #ffccbc 0%, #ffffee 50%, #ffccbc 100%);
 }
 .container {
   margin-top: 5%;
@@ -43,7 +43,7 @@ body{
 .submitBtn {
   font-size: var(--normal-font);
   flex-grow: 1;
-  background-color: #e0f7fa;
+  background-color: #ffccbc;
   border: 0;
   width: 15%;
 }
