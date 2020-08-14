@@ -10,7 +10,7 @@ Try the application live at [https://jhmyung.pythonanywhere.com/](https://jhmyun
 
 ## Technologies Used
 - React.js
-- Variable CSS
+- CSS Variables 
 - HTML
 - Python
 - Django RESTful API
