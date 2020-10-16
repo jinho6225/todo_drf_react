@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setInputField, requestTodos } from '../action'
+import { 
+  setInputField, 
+  requestTodos, 
+  requestAddTodo 
+} from '../action'
 import './App.css';
 
 class App extends Component {
@@ -39,38 +43,30 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.props.onRequestTodos()
+    const { onRequestTodos } = this.props
+    console.log(this.props, 'props!!')
+    onRequestTodos()
   }
 
   handleSubmit(e) {
-    const { title } = this.props
-    const { activeItem:{ id }, editing } = this.state
+    const { title, onRequestAddTodo, onRequestTodos } = this.props
     e.preventDefault()
     const csrftoken = this.getCookie('csrftoken');
-    let URL = 'http://127.0.0.1:8000/api/task-create/'
-    // let URL = 'https://jhmyung.pythonanywhere.com/api/task-create/'
+    onRequestAddTodo(title, csrftoken)
 
-    if (editing) {
-      URL = `http://127.0.0.1:8000/api/task-update/${id}/`
-      // URL = `https://jhmyung.pythonanywhere.com/api/task-update/${id}/`
-      this.setState({
-        editing:false
-      })
-    }
-
-    fetch(URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify({ title }),
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data)
-      this.props.onRequestTodos()
-    })
+    // fetch(URL, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'X-CSRFToken': csrftoken
+    //   },
+    //   body: JSON.stringify({ title }),
+    // })
+    // .then(res => res.json())
+    // .then(data => {
+    //   console.log(data)
+    //   this.props.onRequestTodos()
+    // })
       // this.setState({
       //   activeItem: {
       //     id: null,
@@ -82,6 +78,14 @@ class App extends Component {
   }
 
   taskUpdate(taskObj) {
+    const { activeItem:{ id }, editing } = this.state
+    if (editing) {
+      URL = `http://127.0.0.1:8000/api/task-update/${id}/`
+      // URL = `https://jhmyung.pythonanywhere.com/api/task-update/${id}/`
+      this.setState({
+        editing:false
+      })
+    }
     this.setState({
       activeItem: taskObj,
       editing: true
@@ -191,21 +195,30 @@ class App extends Component {
 }
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   console.log(state, 'state')
+  console.log(ownProps, 'state ownProps')
   return {
     title: state.reducer.title,
     todos: state.requestReducer.todos,
     isPending: state.requestReducer.isPending,
     error: state.requestReducer.error,
+    addedTodo: state.requestAddTodoReducer.addedTodo,
+    isAddTodoPending: state.requestAddTodoReducer.isAddTodoPending,
+    error2: state.requestAddTodoReducer.error2,
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
+  console.log(ownProps, 'dis ownProps')
   return {
     handleChange: (event) => dispatch(setInputField(event.target.value)),
     onRequestTodos: () => dispatch(requestTodos()),
-
+    onRequestAddTodo: (title, token) => {
+      dispatch(requestAddTodo(title, token))
+      dispatch(setInputField(''))
+      dispatch(requestTodos())
+    }
   };
 };
 
