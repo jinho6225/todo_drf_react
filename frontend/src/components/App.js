@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setInputField, requestTodos } from '../store'
+import { setInputField, requestTodos } from '../action'
 import './App.css';
 
 class App extends Component {
@@ -42,19 +42,8 @@ class App extends Component {
     this.props.onRequestTodos()
   }
 
-  // fetchTasks() {
-  //   fetch('http://127.0.0.1:8000/api/task-list/')
-  //   // fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
-  //   .then(res => res.json())
-  //   .then(data => {
-  //     this.setState({
-  //       todoList:data
-  //     })
-  //   })
-  // }
-
   handleSubmit(e) {
-    const { inputField } = this.props
+    const { title } = this.props
     const { activeItem:{ id }, editing } = this.state
     e.preventDefault()
     const csrftoken = this.getCookie('csrftoken');
@@ -75,18 +64,21 @@ class App extends Component {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
       },
-      body: JSON.stringify({ inputField }),
+      body: JSON.stringify({ title }),
     })
-    .then(res => {
-      this.fetchTasks()
-      this.setState({
-        activeItem: {
-          id: null,
-          title: '',
-          completed: false
-        }
-      })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+      this.props.onRequestTodos()
     })
+      // this.setState({
+      //   activeItem: {
+      //     id: null,
+      //     title: '',
+      //     completed: false
+      //   }
+      // })
+    
   }
 
   taskUpdate(taskObj) {
@@ -109,7 +101,7 @@ class App extends Component {
       },
     })
     .then(res => {
-      this.fetchTasks()
+      this.props.onRequestTodos()
     })
   }
 
@@ -137,7 +129,7 @@ class App extends Component {
   }
   
   render() {
-    const { inputField, todos, isPending, error, handleChange } = this.props
+    const { title, todos, isPending, error, handleChange } = this.props
     const { todoList } = this.props
     return(
       <div className="container">
@@ -152,9 +144,9 @@ class App extends Component {
                 onChange={handleChange}
                 type="text" 
                 placeholder="Add task" 
-                className="inputField" 
+                className="title" 
                 name="title" 
-                value={inputField}
+                value={title}
                 />
                 <button type="submit" className="submitBtn">Submit</button>
             </form>
@@ -202,7 +194,7 @@ class App extends Component {
 const mapStateToProps = (state) => {
   console.log(state, 'state')
   return {
-    inputField: state.reducer.title,
+    title: state.reducer.title,
     todos: state.requestReducer.todos,
     isPending: state.requestReducer.isPending,
     error: state.requestReducer.error,

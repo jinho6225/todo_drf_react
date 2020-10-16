@@ -34,7 +34,7 @@ body{
   width: 100%;
   display:flex;
 }
-.inputField {
+.title {
   flex-grow: 7;
   border: 1px solid var(--lightgray-color);
   padding: var(--padding);
