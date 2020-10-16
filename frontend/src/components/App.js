@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setInputField } from '../store'
+import { setInputField, requestTodos } from '../store'
 import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      todoList: [],
+      // todoList: [],
       activeItem: {
         id: null,
         completed: false
       },
       editing: false
     }
-    this.fetchTasks = this.fetchTasks.bind(this)
+    // this.fetchTasks = this.fetchTasks.bind(this)
     this.getCookie = this.getCookie.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.taskUpdate = this.taskUpdate.bind(this)
@@ -39,22 +39,23 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.fetchTasks()
+    this.props.onRequestTodos()
   }
 
-  fetchTasks() {
-    fetch('http://127.0.0.1:8000/api/task-list/')
-    // fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
-    .then(res => res.json())
-    .then(data => {
-      this.setState({
-        todoList:data
-      })
-    })
-  }
+  // fetchTasks() {
+  //   fetch('http://127.0.0.1:8000/api/task-list/')
+  //   // fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
+  //   .then(res => res.json())
+  //   .then(data => {
+  //     this.setState({
+  //       todoList:data
+  //     })
+  //   })
+  // }
 
   handleSubmit(e) {
-    const { activeItem:{ title, id }, editing } = this.state
+    const { inputField } = this.props
+    const { activeItem:{ id }, editing } = this.state
     e.preventDefault()
     const csrftoken = this.getCookie('csrftoken');
     let URL = 'http://127.0.0.1:8000/api/task-create/'
@@ -74,7 +75,7 @@ class App extends Component {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
       },
-      body: JSON.stringify({ title }),
+      body: JSON.stringify({ inputField }),
     })
     .then(res => {
       this.fetchTasks()
@@ -136,7 +137,8 @@ class App extends Component {
   }
   
   render() {
-    const { todoList } = this.state
+    const { inputField, todos, isPending, error, handleChange } = this.props
+    const { todoList } = this.props
     return(
       <div className="container">
         <header className="header">
@@ -147,12 +149,12 @@ class App extends Component {
         <div className="inputBox">
             <form onSubmit={this.handleSubmit} method="POST" className="inputForm">
                 <input
-                onChange={this.props.handleChange}
+                onChange={handleChange}
                 type="text" 
                 placeholder="Add task" 
                 className="inputField" 
                 name="title" 
-                value={this.props.inputField}
+                value={inputField}
                 />
                 <button type="submit" className="submitBtn">Submit</button>
             </form>
@@ -160,28 +162,28 @@ class App extends Component {
 
         <div className="list-container">
             <ul className="unorder-list">              
-              {todoList.map(task => {
+              {todos.map(todo => {
                 return (
-                  <li className="task-list" key={task.id}>
+                  <li className="task-list" key={todo.id}>
                     <span 
-                    className={`content ${task.completed ? "active" : ""}`}
+                    className={`content ${todo.completed ? "active" : ""}`}
                     onClick={() => {
-                      this.lineThrough(task)
+                      this.lineThrough(todo)
                     }}
-                    >{task.title}</span>
+                    >{todo.title}</span>
                     <span className="icon">
                       <i 
                       className="far fa-edit" 
                       aria-hidden="true"
                       onClick={() => {
-                        this.taskUpdate(task)
+                        this.taskUpdate(todo)
                       }}
                       ></i>
                       <i 
                       className="far fa-trash-alt" 
                       aria-hidden="true"
                       onClick={() => {
-                        this.taskDelete(task)
+                        this.taskDelete(todo)
                       }}
                       ></i>
                     </span>
@@ -198,14 +200,20 @@ class App extends Component {
 
 
 const mapStateToProps = (state) => {
+  console.log(state, 'state')
   return {
-    inputField: state.inputField,
+    inputField: state.reducer.title,
+    todos: state.requestReducer.todos,
+    isPending: state.requestReducer.isPending,
+    error: state.requestReducer.error,
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     handleChange: (event) => dispatch(setInputField(event.target.value)),
+    onRequestTodos: () => dispatch(requestTodos()),
+
   };
 };
 
