@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { setInputField } from '../store'
 import './App.css';
 
 class App extends Component {
@@ -8,13 +10,11 @@ class App extends Component {
       todoList: [],
       activeItem: {
         id: null,
-        title: '',
         completed: false
       },
       editing: false
     }
     this.fetchTasks = this.fetchTasks.bind(this)
-    this.handleChange = this.handleChange.bind(this)
     this.getCookie = this.getCookie.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.taskUpdate = this.taskUpdate.bind(this)
@@ -43,8 +43,8 @@ class App extends Component {
   }
 
   fetchTasks() {
-    // fetch('http://127.0.0.1:8000/api/task-list/')
-    fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
+    fetch('http://127.0.0.1:8000/api/task-list/')
+    // fetch('https://jhmyung.pythonanywhere.com/api/task-list/')
     .then(res => res.json())
     .then(data => {
       this.setState({
@@ -53,26 +53,16 @@ class App extends Component {
     })
   }
 
-  handleChange(e) {
-    const { value } = e.target;
-    this.setState({
-      activeItem: {
-        ...this.state.activeItem,
-        title: value
-      }
-    })
-  }
-
   handleSubmit(e) {
     const { activeItem:{ title, id }, editing } = this.state
     e.preventDefault()
     const csrftoken = this.getCookie('csrftoken');
-    // let URL = 'http://127.0.0.1:8000/api/task-create/'
-    let URL = 'https://jhmyung.pythonanywhere.com/api/task-create/'
+    let URL = 'http://127.0.0.1:8000/api/task-create/'
+    // let URL = 'https://jhmyung.pythonanywhere.com/api/task-create/'
 
     if (editing) {
-      // URL = `http://127.0.0.1:8000/api/task-update/${id}/`
-      URL = `https://jhmyung.pythonanywhere.com/api/task-update/${id}/`
+      URL = `http://127.0.0.1:8000/api/task-update/${id}/`
+      // URL = `https://jhmyung.pythonanywhere.com/api/task-update/${id}/`
       this.setState({
         editing:false
       })
@@ -107,8 +97,8 @@ class App extends Component {
 
   taskDelete(taskObj) {
     const csrftoken = this.getCookie('csrftoken');    
-    // let URL = `http://127.0.0.1:8000/api/task-delete/${taskObj.id}/`
-    let URL = `https://jhmyung.pythonanywhere.com/api/task-delete/${taskObj.id}/`
+    let URL = `http://127.0.0.1:8000/api/task-delete/${taskObj.id}/`
+    // let URL = `https://jhmyung.pythonanywhere.com/api/task-delete/${taskObj.id}/`
 
     fetch(URL, {
       method: 'DELETE',
@@ -126,8 +116,8 @@ class App extends Component {
     taskObj.completed = !taskObj.completed
 
     const csrftoken = this.getCookie('csrftoken');
-    // let URL = `http://127.0.0.1:8000/api/task-update/${taskObj.id}/`
-    let URL = `https://jhmyung.pythonanywhere.com/api/task-update/${taskObj.id}/`
+    let URL = `http://127.0.0.1:8000/api/task-update/${taskObj.id}/`
+    // let URL = `https://jhmyung.pythonanywhere.com/api/task-update/${taskObj.id}/`
   
     fetch(URL, {
       method: 'POST',
@@ -147,7 +137,6 @@ class App extends Component {
   
   render() {
     const { todoList } = this.state
-    const { activeItem:{ title } } = this.state
     return(
       <div className="container">
         <header className="header">
@@ -158,12 +147,12 @@ class App extends Component {
         <div className="inputBox">
             <form onSubmit={this.handleSubmit} method="POST" className="inputForm">
                 <input
-                onChange={this.handleChange}
+                onChange={this.props.handleChange}
                 type="text" 
                 placeholder="Add task" 
                 className="inputField" 
                 name="title" 
-                value={title}
+                value={this.props.inputField}
                 />
                 <button type="submit" className="submitBtn">Submit</button>
             </form>
@@ -207,4 +196,17 @@ class App extends Component {
   }
 }
 
-export default App;
+
+const mapStateToProps = (state) => {
+  return {
+    inputField: state.inputField,
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    handleChange: (event) => dispatch(setInputField(event.target.value)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
