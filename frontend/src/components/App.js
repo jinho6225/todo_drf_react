@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { 
   setInputField, 
   requestTodos, 
-  requestAddTodo 
+  requestAddTodo,
+  requestRMVTodo
 } from '../action'
 import './App.css';
 
@@ -11,18 +12,14 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      // todoList: [],
       activeItem: {
         id: null,
         completed: false
       },
       editing: false
     }
-    // this.fetchTasks = this.fetchTasks.bind(this)
     this.getCookie = this.getCookie.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.taskUpdate = this.taskUpdate.bind(this)
-    this.taskDelete = this.taskDelete.bind(this)
     this.lineThrough = this.lineThrough.bind(this)
   }
 
@@ -44,37 +41,7 @@ class App extends Component {
 
   componentDidMount() {
     const { onRequestTodos } = this.props
-    console.log(this.props, 'props!!')
     onRequestTodos()
-  }
-
-  handleSubmit(e) {
-    const { title, onRequestAddTodo, onRequestTodos } = this.props
-    e.preventDefault()
-    const csrftoken = this.getCookie('csrftoken');
-    onRequestAddTodo(title, csrftoken)
-
-    // fetch(URL, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'X-CSRFToken': csrftoken
-    //   },
-    //   body: JSON.stringify({ title }),
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //   console.log(data)
-    //   this.props.onRequestTodos()
-    // })
-      // this.setState({
-      //   activeItem: {
-      //     id: null,
-      //     title: '',
-      //     completed: false
-      //   }
-      // })
-    
   }
 
   taskUpdate(taskObj) {
@@ -89,23 +56,6 @@ class App extends Component {
     this.setState({
       activeItem: taskObj,
       editing: true
-    })
-  }
-
-  taskDelete(taskObj) {
-    const csrftoken = this.getCookie('csrftoken');    
-    let URL = `http://127.0.0.1:8000/api/task-delete/${taskObj.id}/`
-    // let URL = `https://jhmyung.pythonanywhere.com/api/task-delete/${taskObj.id}/`
-
-    fetch(URL, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-    })
-    .then(res => {
-      this.props.onRequestTodos()
     })
   }
 
@@ -133,8 +83,14 @@ class App extends Component {
   }
   
   render() {
-    const { title, todos, isPending, error, handleChange } = this.props
-    const { todoList } = this.props
+    const { 
+      title, 
+      todos, 
+      handleChange, 
+      onRequestRMVTodo,
+      onRequestAddTodo
+    } = this.props
+    const csrftoken = this.getCookie('csrftoken');
     return(
       <div className="container">
         <header className="header">
@@ -143,7 +99,10 @@ class App extends Component {
         </header>
 
         <div className="inputBox">
-            <form onSubmit={this.handleSubmit} method="POST" className="inputForm">
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              onRequestAddTodo(title, csrftoken)
+            }} method="POST" className="inputForm">
                 <input
                 onChange={handleChange}
                 type="text" 
@@ -160,7 +119,7 @@ class App extends Component {
             <ul className="unorder-list">              
               {todos.map(todo => {
                 return (
-                  <li className="task-list" key={todo.id}>
+                  <li className="task-list" key={todo.id} id={todo.id}>
                     <span 
                     className={`content ${todo.completed ? "active" : ""}`}
                     onClick={() => {
@@ -179,7 +138,7 @@ class App extends Component {
                       className="far fa-trash-alt" 
                       aria-hidden="true"
                       onClick={() => {
-                        this.taskDelete(todo)
+                        onRequestRMVTodo(todo.id, csrftoken)
                       }}
                       ></i>
                     </span>
@@ -196,15 +155,16 @@ class App extends Component {
 
 
 const mapStateToProps = (state, ownProps) => {
-  console.log(state, 'state')
   return {
     title: state.reducer.title,
     todos: state.requestReducer.todos,
     isPending: state.requestReducer.isPending,
     error: state.requestReducer.error,
-    addedTodo: state.requestAddTodoReducer.addedTodo,
-    isAddTodoPending: state.requestAddTodoReducer.isAddTodoPending,
-    error2: state.requestAddTodoReducer.error2,
+    todos: state.requestReducer.todos,
+    isAddTodoPending: state.requestReducer.isAddTodoPending,
+    error2: state.requestReducer.error2,
+    isRMVTodoPending: state.requestReducer.isRMVTodoPending,
+    error3: state.requestReducer.error3,
   };
 };
 
@@ -215,7 +175,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onRequestAddTodo: async (title, token) => {
       await dispatch(requestAddTodo(title, token))
       await dispatch(setInputField(''))
-      await dispatch(requestTodos())
+
+    },
+    onRequestRMVTodo: async (id, token) => {
+      await dispatch(requestRMVTodo(id, token))
     }
   };
 };
