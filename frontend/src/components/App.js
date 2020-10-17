@@ -197,7 +197,6 @@ class App extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   console.log(state, 'state')
-  console.log(ownProps, 'state ownProps')
   return {
     title: state.reducer.title,
     todos: state.requestReducer.todos,
@@ -210,14 +209,13 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  console.log(ownProps, 'dis ownProps')
   return {
     handleChange: (event) => dispatch(setInputField(event.target.value)),
     onRequestTodos: () => dispatch(requestTodos()),
-    onRequestAddTodo: (title, token) => {
-      dispatch(requestAddTodo(title, token))
-      dispatch(setInputField(''))
-      dispatch(requestTodos())
+    onRequestAddTodo: async (title, token) => {
+      await dispatch(requestAddTodo(title, token))
+      await dispatch(setInputField(''))
+      await dispatch(requestTodos())
     }
   };
 };
